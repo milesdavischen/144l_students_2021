@@ -1,0 +1,95 @@
+---
+title: "EEMB 144L"
+author: "Haodong Chen"
+date: "10/18/2021"
+output: github_document
+---
+
+# Goal
+This document shows how **individual bottle** bacterial abundance data from 2021 remineralization experiments were processed, QC'd and analyzed. It also provides an intro to data processing and analysis with Rstudio and R Markdown. 
+
+```{r load packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+```{r}
+excel_sheets("~/Downloads/144l_students_2021-main 2/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+
+metadata <- read_excel("~/Downloads/144l_students_2021-main 2/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet= "Metadata")
+
+glimpse(metadata)
+unique(metadata$Bottle)
+unique(metadata$Treatment)
+
+data <- read_excel("~/Downloads/144l_students_2021-main 2/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet= "Data")
+glimpse(data)
+
+joined <- left_join(metadata,data)
+glimpse(joined)
+```
+
+# Prepare Data
+```{r warning=FALSE}
+cells <- joined %>%
+  mutate(Datetime = ymd_hm(Datetime), 
+  all_cells_L = as.numeric(all_cells_uL) * 1000000,
+  LNA_cells_L = as.numeric(LNA_cells_uL) * 1000000,
+  HNA_cells_L = as.numeric(HNA_cells_uL) * 1000000) %>%
+  group_by(Treatment, Bottle) %>%
+  mutate(interv = interval(first(Datetime), Datetime), 
+         s = as.numeric(interv), 
+         hours = s/3600, 
+         days = hours/24) %>%
+  ungroup() %>%
+  select(Experiment:DNA_Sample, all_cells_L, LNA_cells_L, HNA_cells_L, hours, days) %>%
+drop_na(all_cells_L)
+glimpse(cells)
+view(cells)
+```
+# Plot Growth Curves
+
+```{r}
+custom.colors <- c("Control" = "#377EB8", "Ash Leachate" = "#4DAF4A", "Mud Leachate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
+#assign levels to control what order things appear in the legend
+levels <- c("Control", "Ash Leachate", "Mud Leachate", "Glucose_Nitrate_Phosphate")
+cells %>%
+  mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=all_cells_L, group = interaction(Treatment, Bottle))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size =1) +
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) + 
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") +
+  labs(x = "Days", y = expression(paste("Cells, L"^-1)), fill = "") + 
+  guides(color = "none") + 
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors) +
+  #facet_grid(rows = "Treatment")
+  theme_bw()
+```
+
+#Identify exponential phase of growth
+
+```{r}
+ln_cells <- cells %>%
+  group_by(Treatment, Bottle) %>%
+  mutate(ln_cells = log(all_cells_L), 
+         diff_ln_cells = ln_cells - lag(ln_cells, default = first(ln_cells)))
+```
+
+#plot exponential phase of growth
+
+```{r}
+ln_cells %>%
+  mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
+  ggplot(aes(x=days, y=diff_ln_cells, group = interaction(Treatment, Bottle))) +
+  geom_line(aes(color = factor(Treatment, levels = levels)), size =1) +
+  geom_point(aes(fill = factor(Treatment, levels = levels)), size = 3, color = "black", shape = 21) + 
+  geom_text(aes(label = dna), size = 12, color = "#E41A1C") +
+  labs(x = "Days", y = expression(paste("∆ln cells, L"^-1)), fill = "") + 
+  guides(color = "none") + 
+  scale_color_manual(values = custom.colors) +
+  scale_fill_manual(values = custom.colors) +
+  facet_wrap("Bottle", ncol =2) +
+  theme_bw()
+```
+
