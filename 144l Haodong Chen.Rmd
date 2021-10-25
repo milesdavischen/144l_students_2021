@@ -2,7 +2,9 @@
 title: "EEMB 144L"
 author: "Haodong Chen"
 date: "10/18/2021"
-output: github_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 # Goal
