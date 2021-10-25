@@ -51,7 +51,7 @@ view(cells)
 ```
 # Plot Growth Curves
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 custom.colors <- c("Control" = "#377EB8", "Ash Leachate" = "#4DAF4A", "Mud Leachate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
 #assign levels to control what order things appear in the legend
 levels <- c("Control", "Ash Leachate", "Mud Leachate", "Glucose_Nitrate_Phosphate")
@@ -71,7 +71,7 @@ cells %>%
 
 #Identify exponential phase of growth
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 ln_cells <- cells %>%
   group_by(Treatment, Bottle) %>%
   mutate(ln_cells = log(all_cells_L), 
@@ -80,7 +80,7 @@ ln_cells <- cells %>%
 
 #plot exponential phase of growth
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 ln_cells %>%
   mutate(dna = ifelse(DNA_Sample == T, "*", NA)) %>%
   ggplot(aes(x=days, y=diff_ln_cells, group = interaction(Treatment, Bottle))) +
