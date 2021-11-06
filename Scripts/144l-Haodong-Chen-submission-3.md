@@ -172,7 +172,7 @@ DAPI_Data %>%
   theme_bw()
 ```
 
-![](144l-dapi-Haodong-Chen_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](144l-Haodong-Chen-submission-3_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 Q: What differences between the treatments do you observe? Does this
 make sense in the context of the oxygen drawdown data (pictured below)?
@@ -211,7 +211,7 @@ DAPI_Data %>%
   theme_bw()
 ```
 
-![](144l-dapi-Haodong-Chen_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](144l-Haodong-Chen-submission-3_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 Q: What differences do you notice between the cell abundance data and
 the cell biovolume data?

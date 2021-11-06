@@ -1,5 +1,5 @@
 ---
-title: " Haodong Chen 2021_dapi_abundance submission"
+title: " Haodong Chen 2021 submission 3"
 author: "Haodong Chen"
 date: "10/27/2021"
 output: github_document
@@ -68,7 +68,7 @@ Plot growth curves for each treatment using DAPI cell abundance and biovolume da
 #insert your code here
 
 custom.colors <- c("Control" = "#377EB8", "Ash Leachate" = "#4DAF4A", "Mud Leachate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00", "Kelp Exudate_Nitrate_Phosphate" = "#00FF00", "Kelp Exudate" = "#DDA0DD")
-levels <- c("Control", "Ash Leachate", "Mud Leachate", "Glucose_Nitrate_Phosphate", "Kelp Exudate_Nitrate_Phosphate", "Kelp Exudate")
+levels <- c("Control", "Ash Leachate", "Mud Leachate", "Glucose_NitrateExudate")
 DAPI_Data %>%
   mutate(DAPI_Data = ifelse(Cells_L == T, "*", NA)) %>%
   ggplot(aes(x=Timepoint, y=Cells_L, group = interaction(Treatment))) +
