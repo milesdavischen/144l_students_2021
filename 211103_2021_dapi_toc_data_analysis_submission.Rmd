@@ -1,6 +1,6 @@
 ---
 title: "2021 Bacterial Abundance Data (DAPI) & TOC Data Analysis"
-author: "Your Name"
+author: "Haodong Chen"
 date: "11/03/2021"
 output: github_document
 ---
@@ -17,23 +17,20 @@ library(lubridate)
 
 # Import Data 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #make sure to update the filepaths for your own locally-stored repository! 
 
-excel_sheets("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
+excel_sheets("~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx")
 
-#Mac: to make an arrow, use Option + - 
-
-metadata <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
-
+metadata <- read_excel("~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "Metadata")
 glimpse(metadata)
 #unique(metadata$Bottle)
 #unique(metadata$Treatment)
 
-dapi_data <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
+dapi_data <- read_excel("~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "DAPI_Data")
 glimpse(dapi_data)
 
-toc_data <- read_excel("~/Documents/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "TOC_Data")
+toc_data <- read_excel("~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.xlsx", sheet = "TOC_Data")
 glimpse(toc_data)
 
 dapi_metadata <- metadata %>%
@@ -50,7 +47,7 @@ glimpse(joined)
 
 We will convert the Date and Time column values from characters to dates, add columns with time elapsed for each treatment, and convert to cells/L because it will help us match up with the TOC data later. We will then subset the data for variables of interest and drop NA values. 
 
-```{r message=TRUE, warning=TRUE}
+```{r message=FALSE, warning=FALSE}
 cells <- joined %>%
   mutate(Datetime = ymd_hm(Datetime), #splits apart Datetime as specified
   Cells_L = as.numeric(Cells_mL)*1000,  
@@ -71,7 +68,7 @@ We will plot growth curves for each treament with DAPI cell abundance and biovol
 
 ## Cell Abundance:
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #assign hex colors to our different treatments, example below:
 # <- c("Control" = "#377EB8", "Ash Leachate" = "#4DAF4A", "Mud Leachate" = "#E41A1C", "Glucose_Nitrate_Phosphate" = "#FF7F00")
 
@@ -98,12 +95,12 @@ glimpse(cells)
 Q1: What differences between the treatments do you observe? Does this make sense in the context of the oxygen drawdown data (pictured below)?
 
 A1: 
-
+ For Cell abundance, Glucose Nitrate Phosphate > Kelp Exudate Nitrate Phosphate > Kelp Exudate > Control, which means the more nutrients added in the treatment, the greater bacteria growth efficiency would be. All curve except the control one become smoother after timepoint 4. A possible reason might be the nutrients added were running out. Also, as the cell abundance increases, they would consume more oxygen. The graph we get is mostly supported by the change in oxygen data. The only difference is kelp DOM and N/P treatment and Kelp DOM treatment are reversed. The two lines in oxygen are very close to eanch other, and maybe some other factors leading to this situation.
 Oxygen Drawdown: 
 ![](EEMB144_remin_autoBOD.png)
 
 ## Cell Biovolume
-```{r}
+```{r message=FALSE, warning=FALSE}
 #assign levels to control what order things appear in the legend
 levels <- c("Control", "Kelp Exudate", "Kelp Exudate_Nitrate_Phosphate", "Glucose_Nitrate_Phosphate")
 
@@ -124,7 +121,7 @@ glimpse(cells)
 ```
 Q2: What differences do you notice between the cell abundance data and the cell biovolume data across each treatment? 
 
-A2: 
+A2: Biovolume decreased after timepoint 4 for each group. Also, Kelp exudate nitrate phosphate can be higher in biovolume than glucose nitrate phosphate at most of the time. The Kelp Exudate treatment's biocolume could even drop into a lower point than the control group at timepoint 8.
 
 # Next Steps 
 
@@ -144,7 +141,7 @@ log(x) gives the natural log of x, not log base 10
 log10(x) gives the log base 10
 log2(x)  gives log base 2 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 ln_cells <- cells %>%
   group_by(Treatment) %>%
   mutate(ln_cells = log(Cells_L),
@@ -180,11 +177,11 @@ A: Between 0-2 days for all bottles. (T0 - T4)
 
 Q3: What are the limitations of using the DAPI data (only 3 timepoints) instead of the FCM data? Hint: Think about this question in terms of bacterial growth curves, and which phase of growth we need in order to calculate specific growth rates. 
 
-A3:
+A3:The specific growth rate is calculated from log phase of the curve. According to DAPI data, we calculate this rate only based on two timepoint, which means we don't know what exactly is the point log phase ended. In that case, our result would not be so accurate.
 
 ## Calculate growth rates, doubling times, and ∆cell abundances using cell abundance data (cells/L)
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 growth <- ln_cells %>% 
   mutate(exp_start = 0, #create two new columns with start & end of exponential
          exp_end = 4) %>% 
@@ -220,7 +217,7 @@ We will also generate our own CCFs using the biovolume data and the equation pro
     
 And use these biovolume-derived CCFs to calculate bacterial carbon, DOC & BGEs for comparison with the same metrics calculated using a CCF of 30 fg C / cell. 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #convert the fg to umol to C/L, create our own CCF's using cell biovolume
 bactcarbon <- growth %>% 
   mutate(CCF = 30, 
@@ -240,7 +237,7 @@ glimpse(bactcarbon)
 
 #update this filepath to match your own repository 
 #save your data to a .csv 
-write.csv(bactcarbon, "~/Documents/144l_students_2021/Output_Data/week6/211101_dapi_data_calculations.csv")
+write.csv(bactcarbon, "~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.csv")
 
 #normally we would do this for the individual bottles and then calculate averages, but can't do that here since we have data from combined bottles 
 
@@ -248,7 +245,7 @@ write.csv(bactcarbon, "~/Documents/144l_students_2021/Output_Data/week6/211101_d
 
 # Plot
 
-```{r fig.height=4, fig.width=6}
+```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 trt_ba <- bactcarbon %>% 
   ggplot(aes(x = days, y = bc), group = Treatment) +
   #geom_errorbar(aes(ymin = ave_bc - sd_bc, ymax = ave_bc + sd_bc, color = factor(Treatment, levels = levels)), width = 0.1) +
@@ -260,10 +257,10 @@ trt_ba <- bactcarbon %>%
 
 trt_ba
 
-saveRDS(trt_ba, "~/Documents/144l_students_2021/Output_Data/week6/144L_trt_ba_plot.rds")
+saveRDS(trt_ba, "~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.rds")
 ```
 
-```{r fig.height=4, fig.width=6}
+```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 trt_ba_biovol <- bactcarbon %>% 
   ggplot(aes(x = days, y = biovol_bc), group = Treatment) +
   #geom_errorbar(aes(ymin = ave_bc - sd_bc, ymax = ave_bc + sd_bc, color = factor(Treatment, levels = levels)), width = 0.1) +
@@ -275,22 +272,22 @@ trt_ba_biovol <- bactcarbon %>%
 
 trt_ba_biovol
 
-saveRDS(trt_ba_biovol, "~/Documents/144l_students_2021/Output_Data/week6/144L_trt_ba_biovol_plot.rds")
+saveRDS(trt_ba_biovol, "~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.rds")
 ```
 
 Q4: How do the bacterial carbon values change when we account for changes in cell biovolume as the experiment progresses? 
 
-A4: 
+A4: During the first 2 days, the changes bacterial carbon and biovolume are very similar to each other. However, the trend become slightly different after 2 days when the nutrient are almost consumed by bacterias. In the control group, bacteria carbon slope remains the same after 2 days, but biovolume goes down. For the kelp exudate group and the exudate plus nutrient group, bacterial carbon slightly increase. However, biovolume decrease. For the glucose group, both biovolume and bacteria carbon decrease, but biovolume decreases in a larger degree. A possible reason might be bacteria are consumed by flagellates, and flagellates prefer larger bacteria. This would lead to the decrease of biovolume.
 
 ## Barplots
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 bar.data <- bactcarbon %>% 
   select(Treatment, mew, doubling, delta_cells) %>%
   unique()
 ``` 
 
-```{r fig.height=4, fig.width=10}
+```{r fig.height=4, fig.width=10, message=FALSE, warning=FALSE}
 mew <- bar.data %>% 
   ggplot(aes(x = factor(Treatment, levels = levels), y = mew), group = Treatment) +
   geom_col(color = "black", fill = "white") +
@@ -305,7 +302,7 @@ mew
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 doubling <- bar.data %>% 
   ggplot(aes(x = factor(Treatment, levels = levels), y = doubling), group = Treatment) +
   geom_col(color = "black", fill = "white") +
@@ -318,7 +315,7 @@ doubling
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 delta_cells <- bar.data %>% 
   ggplot(aes(x = factor(Treatment, levels = levels), y = delta_cells), group = Treatment) +
   geom_col(color = "black", fill = "white") +
@@ -329,13 +326,13 @@ delta_cells <- bar.data %>%
 delta_cells
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #uncomment the next line below if you need to install the package "patchwork" (remove the #)
-# install.packages("patchwork")
+install.packages("patchwork")
 library(patchwork)
 ```
 
-```{r fig.height=8, fig.width=6}
+```{r fig.height=8, fig.width=6, message=FALSE, warning=FALSE}
 #we can add our plots together to make a nice composite figure
 
 delta_cells + mew + doubling + plot_annotation(tag_levels = "a") +plot_layout(ncol =1)
@@ -343,17 +340,17 @@ delta_cells + mew + doubling + plot_annotation(tag_levels = "a") +plot_layout(nc
 
 Q5: Do the patterns you see in the ∆Cells, specific growth rate (u), and doubling time line up with our previous observations of cell abundance? How about with the oxygen drawdown data?
 
-A5: 
+A5: Doubling time is not line up with specific growth rate and delta cells. This is because a shorter the doubling time is, the faster the cells will grow. In that case, we would see a reverse pattern between doulbling time and the other two. For the oxygen drawdown data, if the doubling time is shorter, it means the cells grows faster. Thus, oxygen will be consumed faster.
 
 # Save Data 
 
-```{r}
-saveRDS(bactcarbon, "~/Documents/144l_students_2021/Output_Data/week6/144L_Exp_Processed_BactAbund.rds")
+```{r message=FALSE, warning=FALSE}
+saveRDS(bactcarbon, "~/Desktop/144l_students_2021/Input_Data/week4/144L_2021_BactAbund.rds")
 ```
 
 # Incorporate TOC data
 
-```{r fig.height=4, fig.width=8}
+```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 toc <- left_join(bactcarbon, toc_data)
 glimpse(toc)
 
@@ -377,13 +374,13 @@ Q6: a) What was our target concentration of carbon to add to each treatment?
     c) What does this imply about our ability to assess the effect of the **type** of DOC added?
     d) What happens to TOC over time in the incubations and does this align with our other data?
 
-A6: a) 
-    b)
-    c) 
-    d) 
+A6: a) For control group, target concentration of carbon is 0 uM, for other groups, target TOC is 10 uL.
+    b) We hit our target in each treatment.
+    c) Since target TOC is the same for all groups except the control group, we can use the result to assess how much TOC bacterial is able to use in each treatment.
+    d) TOC for all group dramatically decrease in the first 2 days for all treatments. After 2 days, they decrease in a slower rate, which means the nutrients added are running off. It is align with our data.
 
 ## Calculate DOC, ∆DOC, Bioavailable DOC Fraction, and Bacterial Growth Efficiency (BGE)
-```{r}
+```{r message=FALSE, warning=FALSE}
 doc <- toc %>% 
   mutate(doc = Mean_uMC - bc, 
          doc_bv = Mean_uMC - biovol_bc) %>% 
@@ -400,7 +397,7 @@ doc <- toc %>%
   ungroup()
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 bioav <- doc %>% 
 ggplot(aes(x = factor(Treatment, levels = levels), y =  bioav_doc, group =Treatment))  + 
   geom_bar(position = position_dodge(), stat = "identity", color = "black", fill = "white", alpha = 1) +
@@ -413,7 +410,7 @@ ggplot(aes(x = factor(Treatment, levels = levels), y =  bioav_doc, group =Treatm
 
 bioav
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 bioav_bv <- doc %>% 
 ggplot(aes(x = factor(Treatment, levels = levels), y =  bioav_doc_bv, group =Treatment))  + 
   geom_bar(position = position_dodge(), stat = "identity", color = "black", fill = "white", alpha = 1) +
@@ -426,7 +423,7 @@ ggplot(aes(x = factor(Treatment, levels = levels), y =  bioav_doc_bv, group =Tre
 
 bioav_bv
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 deldoc <- doc %>% 
 ggplot(aes(x = factor(Treatment, levels = levels), y =  delta_doc, group =Treatment))  + 
   geom_bar(position = position_dodge(), stat = "identity", color = "black", fill = "white", alpha = 1) +
@@ -438,7 +435,7 @@ ggplot(aes(x = factor(Treatment, levels = levels), y =  delta_doc, group =Treatm
   guides(scale = "none") 
 deldoc
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 deldoc_bv <- doc %>% 
 ggplot(aes(x = factor(Treatment, levels = levels), y =  delta_doc_bv, group =Treatment))  + 
   geom_bar(position = position_dodge(), stat = "identity", color = "black", fill = "white", alpha = 1) +
@@ -463,7 +460,7 @@ ggplot(aes(x = factor(Treatment, levels = levels), y =  bge, group =Treatment)) 
 bge
 
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 bge_bv <- doc %>% 
 ggplot(aes(x = factor(Treatment, levels = levels), y =  bge_bv, group =Treatment))  + 
   geom_bar(position = position_dodge(), stat = "identity", color = "black", fill = "white", alpha = 1) +
@@ -476,10 +473,10 @@ ggplot(aes(x = factor(Treatment, levels = levels), y =  bge_bv, group =Treatment
 bge_bv
 
 ```
-```{r fig.height=8, fig.width=10}
+```{r fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
 deldoc / deldoc_bv / bioav / bioav_bv / bge / bge_bv + plot_annotation(tag_levels = "a") + plot_layout(ncol = 2)
                                                                       
 ```
 Q7: How does incorporating biovolume change (or not change) your interpretation of the ∆DOC, Bioavaliable DOC, and BGE values? Provide 1-2 sentences for each comparison (a vs. b,c vs. d & e vs. f)
 
-A7: 
+A7: For delta DOC, incorporating biovolume, the kelpa plus nutrient group slightly increase, and becomes bigger than kelp exudate group. This is closer to our expectation. Since biovolume indicate the volume of cells in a unit amount of water, biovolume-derrived delta DOC would help us to assess the data more accurately by providing a more accurate carbon conversion factor.In that case, for delta DOC, the data tell us exudate plus nutrients group utilize DOC more efficiently and consumed more DOC. For bioavailable DOC fraction, incorporating biovolume would cause similar change with delta DOC, it tell us there are more bioavailable DOC in exudate plus nutrients group. For BGE, in both graphs BGE is much higher for exudate + nutrient group than glucose group. A potential reason is flagellates population grows faster if there are more bacteria. As a result, many bacteria was consumed by flagellates in the glucose group. For the control group, the BGE is much higher in the graph without incorparating biovolume. One explanation is their biovolume is very low. In that case, if we neglect biovolme, we would overestimate their BGE.
