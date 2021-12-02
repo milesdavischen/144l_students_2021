@@ -97,7 +97,7 @@ Q1: What differences between the treatments do you observe? Does this make sense
 A1: 
  For Cell abundance, Glucose Nitrate Phosphate > Kelp Exudate Nitrate Phosphate > Kelp Exudate > Control, which means the more nutrients added in the treatment, the greater bacteria growth efficiency would be. All curve except the control one become smoother after timepoint 4. A possible reason might be the nutrients added were running out. Also, as the cell abundance increases, they would consume more oxygen. The graph we get is mostly supported by the change in oxygen data. The only difference is kelp DOM and N/P treatment and Kelp DOM treatment are reversed. The two lines in oxygen are very close to eanch other, and maybe some other factors leading to this situation.
 Oxygen Drawdown: 
-![](EEMB144_remin_autoBOD.png)
+
 
 ## Cell Biovolume
 ```{r message=FALSE, warning=FALSE}
@@ -328,7 +328,7 @@ delta_cells
 
 ```{r message=FALSE, warning=FALSE}
 #uncomment the next line below if you need to install the package "patchwork" (remove the #)
-install.packages("patchwork")
+#install.packages("patchwork")
 library(patchwork)
 ```
 
